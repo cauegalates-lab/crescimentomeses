@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel de Crescimento Mensal</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero-card">
+      <div>
+        <p class="eyebrow">Comparativo de faturamento</p>
+        <h1>Painel de Crescimento Mensal</h1>
+        <p class="hero-text">
+          Compare dois meses lado a lado. O painel mostra automaticamente somente os dias 1 até o dia atual do mês.
+        </p>
+      </div>
+
+      <div class="today-box">
+        <span>Dia acompanhado</span>
+        <strong id="currentDayLabel">--</strong>
+        <small id="currentDateLabel">--</small>
+      </div>
+    </section>
+
+    <section class="summary-grid" aria-label="Resumo dos meses">
+      <article class="summary-card">
+        <span id="summaryLabelA">Mês A</span>
+        <strong id="summaryTotalA">R$ 0,00</strong>
+        <small>Total do período</small>
+      </article>
+      <article class="summary-card">
+        <span id="summaryLabelB">Mês B</span>
+        <strong id="summaryTotalB">R$ 0,00</strong>
+        <small>Total do período</small>
+      </article>
+      <article class="summary-card growth">
+        <span>Crescimento total</span>
+        <strong id="summaryGrowthPercent">0%</strong>
+        <small id="summaryGrowthMoney">R$ 0,00</small>
+      </article>
+    </section>
+
+    <section class="board" aria-label="Tabela comparativa mensal">
+      <article class="month-column" data-column="a">
+        <header class="column-header">
+          <div>
+            <span class="column-kicker">Primeiro mês</span>
+            <h2 id="titleMonthA">Junho</h2>
+          </div>
+          <label class="month-picker">
+            <span>Selecionar mês</span>
+            <select id="monthSelectA" aria-label="Selecionar primeiro mês"></select>
+          </label>
+        </header>
+
+        <div class="table-head two-cols">
+          <span>Dia</span>
+          <span>Faturado</span>
+        </div>
+        <div id="rowsMonthA" class="rows-list"></div>
+
+        <footer class="column-footer">
+          <span>Total</span>
+          <strong id="footerTotalA">R$ 0,00</strong>
+        </footer>
+      </article>
+
+      <article class="month-column" data-column="b">
+        <header class="column-header">
+          <div>
+            <span class="column-kicker">Segundo mês</span>
+            <h2 id="titleMonthB">Julho</h2>
+          </div>
+          <label class="month-picker">
+            <span>Selecionar mês</span>
+            <select id="monthSelectB" aria-label="Selecionar segundo mês"></select>
+          </label>
+        </header>
+
+        <div class="table-head two-cols">
+          <span>Dia</span>
+          <span>Faturado</span>
+        </div>
+        <div id="rowsMonthB" class="rows-list"></div>
+
+        <footer class="column-footer">
+          <span>Total</span>
+          <strong id="footerTotalB">R$ 0,00</strong>
+        </footer>
+      </article>
+
+      <article class="growth-column">
+        <header class="column-header growth-header">
+          <div>
+            <span class="column-kicker">Resultado</span>
+            <h2>Crescimento</h2>
+          </div>
+          <div class="legend-pill">Mês 2 × Mês 1</div>
+        </header>
+
+        <div class="table-head growth-cols">
+          <span>Dia</span>
+          <span>Diferença</span>
+          <span>%</span>
+        </div>
+        <div id="rowsGrowth" class="rows-list"></div>
+
+        <footer class="column-footer growth-footer">
+          <span>Resultado total</span>
+          <strong id="footerGrowth">0%</strong>
+        </footer>
+      </article>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
