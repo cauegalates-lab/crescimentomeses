@@ -4,21 +4,18 @@ const monthNames = [
 ];
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzVQVL3t8UjhSVHGX-P-uetEQezoVEfjQaC0c8qTHBYF-OQz_uFNjwcNGt5S7aMOHHA/exec';
-
 const USE_GOOGLE_SHEETS = true;
 const API_TIMEOUT = 12000;
-const REFRESH_INTERVAL = 60000;
 
 const now = new Date();
 const currentYear = now.getFullYear();
 const currentMonthIndex = now.getMonth();
 const currentDay = now.getDate();
 
-const defaultFirstMonth = 5; // Junho
+const defaultFirstMonth = 5;
 const defaultSecondMonth = currentMonthIndex;
 
 const storageKey = 'painel-crescimento-mensal-v1';
-
 const selectors = {
   currentDayLabel: document.getElementById('currentDayLabel'),
   currentDateLabel: document.getElementById('currentDateLabel'),
@@ -41,22 +38,17 @@ const selectors = {
 };
 
 const fallbackData = createFallbackData();
-
 let faturamento = loadData();
 let selectedA = defaultFirstMonth;
 let selectedB = defaultSecondMonth;
-
 let sheetData = null;
 let isLoadingSheetData = false;
 let lastLoadId = 0;
-let hasLoadedOnce = false;
-let refreshTimer = null;
 
 init();
 
 function init() {
   selectors.currentDayLabel.textContent = `1 a ${currentDay}`;
-
   selectors.currentDateLabel.textContent = now.toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'long',
@@ -68,39 +60,15 @@ function init() {
 
   selectors.monthSelectA.addEventListener('change', () => {
     selectedA = Number(selectors.monthSelectA.value);
-    hasLoadedOnce = false;
     refreshData();
-    restartAutoRefresh();
   });
 
   selectors.monthSelectB.addEventListener('change', () => {
     selectedB = Number(selectors.monthSelectB.value);
-    hasLoadedOnce = false;
     refreshData();
-    restartAutoRefresh();
   });
 
   refreshData();
-  startAutoRefresh();
-}
-
-function startAutoRefresh() {
-  stopAutoRefresh();
-
-  refreshTimer = setInterval(() => {
-    refreshData();
-  }, REFRESH_INTERVAL);
-}
-
-function stopAutoRefresh() {
-  if (refreshTimer) {
-    clearInterval(refreshTimer);
-    refreshTimer = null;
-  }
-}
-
-function restartAutoRefresh() {
-  startAutoRefresh();
 }
 
 function refreshData() {
@@ -112,31 +80,22 @@ function refreshData() {
 
   const loadId = ++lastLoadId;
   isLoadingSheetData = true;
-
-  if (!hasLoadedOnce) {
-    renderLoading();
-  }
+  sheetData = null;
+  renderLoading();
 
   loadGoogleSheetsData()
     .then((data) => {
       if (loadId !== lastLoadId) return;
-
       sheetData = normalizeSheetData(data);
       mergeSheetDataIntoLocalCache(sheetData);
-      hasLoadedOnce = true;
     })
     .catch((error) => {
       if (loadId !== lastLoadId) return;
-
+      sheetData = null;
       console.warn('Não foi possível carregar os dados do Google Sheets. Usando dados locais.', error);
-
-      if (!hasLoadedOnce) {
-        sheetData = null;
-      }
     })
     .finally(() => {
       if (loadId !== lastLoadId) return;
-
       isLoadingSheetData = false;
       render();
     });
@@ -146,7 +105,6 @@ function loadGoogleSheetsData() {
   return new Promise((resolve, reject) => {
     const callbackName = `receberDadosPainel_${Date.now()}_${Math.random().toString(36).slice(2)}`;
     const script = document.createElement('script');
-
     const timer = window.setTimeout(() => {
       cleanup();
       reject(new Error('Tempo limite ao carregar dados da planilha.'));
@@ -155,10 +113,7 @@ function loadGoogleSheetsData() {
     function cleanup() {
       window.clearTimeout(timer);
       delete window[callbackName];
-
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
+      if (script.parentNode) script.parentNode.removeChild(script);
     }
 
     window[callbackName] = (data) => {
@@ -192,21 +147,18 @@ function normalizeSheetData(data) {
     base: safeData.base || {},
     atual: safeData.atual || {},
     crescimentoTotal: safeData.crescimentoTotal || {},
-    atualizadoEm: safeData.atualizadoEm || null,
-    dias: dias
-      .map((item) => ({
-        dia: Number(item.dia) || 0,
-        base: Number(item.base) || 0,
-        atual: Number(item.atual) || 0,
-        diferenca: Number(item.diferenca) || 0,
-        crescimento: item.crescimento === null ? null : Number(item.crescimento) || 0
-      }))
-      .filter((item) => item.dia > 0)
+    dias: dias.map((item) => ({
+      dia: Number(item.dia) || 0,
+      base: Number(item.base) || 0,
+      atual: Number(item.atual) || 0,
+      diferenca: Number(item.diferenca) || 0,
+      crescimento: item.crescimento === null ? null : Number(item.crescimento) || 0
+    })).filter((item) => item.dia > 0)
   };
 }
 
 function mergeSheetDataIntoLocalCache(data) {
-  if (!data || !Array.isArray(data.dias) || !data.dias.length) return;
+  if (!data || !data.dias.length) return;
 
   if (!faturamento[selectedA]) faturamento[selectedA] = {};
   if (!faturamento[selectedB]) faturamento[selectedB] = {};
@@ -215,8 +167,6 @@ function mergeSheetDataIntoLocalCache(data) {
     faturamento[selectedA][item.dia] = item.base;
     faturamento[selectedB][item.dia] = item.atual;
   });
-
-  saveData();
 }
 
 function renderLoading() {
@@ -227,12 +177,10 @@ function renderLoading() {
   selectors.titleMonthB.textContent = mesB;
   selectors.summaryLabelA.textContent = mesA;
   selectors.summaryLabelB.textContent = mesB;
-
   selectors.summaryTotalA.textContent = 'Carregando...';
   selectors.summaryTotalB.textContent = 'Carregando...';
   selectors.summaryGrowthPercent.textContent = '...';
   selectors.summaryGrowthMoney.textContent = 'Buscando na planilha';
-
   selectors.footerTotalA.textContent = '...';
   selectors.footerTotalB.textContent = '...';
   selectors.footerGrowth.textContent = '...';
@@ -275,18 +223,17 @@ function fillMonthOptions(select, selectedMonth) {
 
   monthNames.forEach((month, index) => {
     const option = document.createElement('option');
-
     option.value = index;
     option.textContent = month;
     option.selected = index === selectedMonth;
-
     select.appendChild(option);
   });
 }
 
 function render() {
-  const days = getDaysForRender(selectedA, selectedB);
+  if (isLoadingSheetData) return;
 
+  const days = getDaysForRender(selectedA, selectedB);
   const titleA = sheetData?.base?.mes || monthNames[selectedA];
   const titleB = sheetData?.atual?.mes || monthNames[selectedB];
 
@@ -335,10 +282,8 @@ function renderMonthRows(column, monthIndex, days, target) {
 
       input.addEventListener('blur', () => {
         const value = parseMoney(input.value);
-
         setValue(monthIndex, day, value);
         input.value = formatInputValue(value);
-
         renderGrowthRows(days);
         renderTotals(days);
       });
@@ -361,7 +306,6 @@ function renderGrowthRows(days) {
   for (let day = 1; day <= days; day++) {
     const firstValue = getValue(selectedA, day);
     const secondValue = getValue(selectedB, day);
-
     const difference = secondValue - firstValue;
     const percent = calculateGrowth(firstValue, secondValue);
     const status = getStatusClass(difference, percent);
@@ -387,30 +331,21 @@ function renderGrowthRows(days) {
 }
 
 function renderTotals(days) {
-  const totalA = sheetData?.base?.total !== undefined
-    ? Number(sheetData.base.total) || 0
-    : getMonthTotal(selectedA, days);
-
-  const totalB = sheetData?.atual?.total !== undefined
-    ? Number(sheetData.atual.total) || 0
-    : getMonthTotal(selectedB, days);
-
+  const totalA = sheetData?.base?.total !== undefined ? Number(sheetData.base.total) || 0 : getMonthTotal(selectedA, days);
+  const totalB = sheetData?.atual?.total !== undefined ? Number(sheetData.atual.total) || 0 : getMonthTotal(selectedB, days);
   const diff = totalB - totalA;
   const growth = calculateGrowth(totalA, totalB);
   const status = getStatusClass(diff, growth);
 
   selectors.summaryTotalA.textContent = formatCurrency(totalA);
   selectors.summaryTotalB.textContent = formatCurrency(totalB);
-
   selectors.footerTotalA.textContent = formatCurrency(totalA);
   selectors.footerTotalB.textContent = formatCurrency(totalB);
 
   selectors.summaryGrowthPercent.className = status;
   selectors.summaryGrowthPercent.textContent = formatPercent(growth, totalA, totalB);
-
   selectors.summaryGrowthMoney.textContent = formatCurrency(diff);
   selectors.summaryGrowthMoney.className = status;
-
   selectors.footerGrowth.className = status;
   selectors.footerGrowth.textContent = `${formatPercent(growth, totalA, totalB)} | ${formatCurrency(diff)}`;
 }
@@ -429,13 +364,8 @@ function getDaysForRender(monthA, monthB) {
 }
 
 function ensureDay(monthIndex, day) {
-  if (!faturamento[monthIndex]) {
-    faturamento[monthIndex] = {};
-  }
-
-  if (faturamento[monthIndex][day] === undefined) {
-    faturamento[monthIndex][day] = '';
-  }
+  if (!faturamento[monthIndex]) faturamento[monthIndex] = {};
+  if (faturamento[monthIndex][day] === undefined) faturamento[monthIndex][day] = '';
 }
 
 function getSheetDay(day) {
@@ -451,49 +381,39 @@ function getValue(monthIndex, day) {
   }
 
   ensureDay(monthIndex, day);
-
   return Number(faturamento[monthIndex][day]) || 0;
 }
 
 function setValue(monthIndex, day, value) {
   ensureDay(monthIndex, day);
-
   faturamento[monthIndex][day] = Number(value) || 0;
-
   saveData();
 }
 
 function getMonthTotal(monthIndex, days) {
   let total = 0;
-
   for (let day = 1; day <= days; day++) {
     total += getValue(monthIndex, day);
   }
-
   return total;
 }
 
 function calculateGrowth(baseValue, currentValue) {
   if (baseValue === 0 && currentValue === 0) return 0;
   if (baseValue === 0 && currentValue > 0) return null;
-
   return ((currentValue - baseValue) / baseValue) * 100;
 }
 
 function getStatusClass(difference, percent) {
   if (percent === null || difference > 0) return 'positive';
   if (difference < 0) return 'negative';
-
   return 'neutral';
 }
 
 function formatPercent(percent, baseValue, currentValue) {
-  if (percent === null) {
-    return currentValue > 0 && baseValue === 0 ? '+100%' : '0%';
-  }
+  if (percent === null) return currentValue > 0 && baseValue === 0 ? '+100%' : '0%';
 
   const signal = percent > 0 ? '+' : '';
-
   return `${signal}${percent.toLocaleString('pt-BR', {
     minimumFractionDigits: 1,
     maximumFractionDigits: 1
@@ -529,9 +449,7 @@ function formatInputValue(value) {
 
 function cleanNumberForEditing(value) {
   const numberValue = Number(value) || 0;
-
   if (!numberValue) return '';
-
   return numberValue.toLocaleString('pt-BR', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
