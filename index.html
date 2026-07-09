@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="app-shell">
+  <main class="app-shell" id="mainScreen">
     <section class="hero-card">
       <div>
         <p class="eyebrow">Comparativo de faturamento</p>
@@ -17,10 +17,16 @@
         </p>
       </div>
 
-      <div class="today-box">
-        <span>Dia acompanhado</span>
-        <strong id="currentDayLabel">--</strong>
-        <small id="currentDateLabel">--</small>
+      <div class="hero-actions">
+        <button class="weekly-open-button" id="openWeeklyView" type="button">
+          Ver fechamento semanal
+        </button>
+
+        <div class="today-box">
+          <span>Dia acompanhado</span>
+          <strong id="currentDayLabel">--</strong>
+          <small id="currentDateLabel">--</small>
+        </div>
       </div>
     </section>
 
@@ -41,6 +47,7 @@
         <small id="summaryGrowthMoney">R$ 0,00</small>
       </article>
     </section>
+
 
     <section class="board" aria-label="Tabela comparativa mensal">
       <article class="month-column" data-column="a">
@@ -114,6 +121,30 @@
       </article>
     </section>
   </main>
+
+  <section class="weekly-screen" id="weeklyScreen" aria-label="Fechamento semanal" hidden>
+    <div class="weekly-screen-shell">
+      <header class="weekly-screen-header">
+        <button class="weekly-back-button" id="closeWeeklyView" type="button">
+          ← Voltar para o painel
+        </button>
+
+        <div class="weekly-title-box">
+          <p class="eyebrow">Fechamento semanal</p>
+          <h2>Semana atual</h2>
+          <span id="weeklyPeriodLabel">--</span>
+        </div>
+
+        <div class="week-total-box weekly-total-main">
+          <span>Total da semana</span>
+          <strong id="weeklyTotal">R$ 0,00</strong>
+        </div>
+      </header>
+
+      <div id="weekCards" class="week-cards weekly-screen-cards" aria-live="polite"></div>
+    </div>
+  </section>
+
 
   <script src="script.js"></script>
 </body>
