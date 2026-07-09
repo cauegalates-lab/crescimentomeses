@@ -22,3 +22,8 @@ Observações:
 - Os cards superiores foram centralizados e deixados com a mesma largura das colunas.
 - As colunas usam a mesma grade para manter as linhas paralelas.
 - Se o Apps Script falhar, o painel mantém funcionamento local como fallback.
+
+Atualização desta versão:
+- A área de fechamento semanal agora abre por um botão no topo.
+- A tela semanal abre dentro da mesma página, sem redirecionar e sem abrir nova aba.
+- Incluído botão para voltar ao painel principal.
