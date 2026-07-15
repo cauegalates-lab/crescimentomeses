@@ -3,7 +3,7 @@ const monthNames = [
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
 ];
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbzVQVL3t8UjhSVHGX-P-uetEQezoVEfjQaC0c8qTHBYF-OQz_uFNjwcNGt5S7aMOHHA/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyyzALZoVKWEsLa55pNZscDsAWJvIBwWhYEhb5IPnqTE7-hqDUmYLdfpQAMObcEJQ27/exec';
 const USE_GOOGLE_SHEETS = true;
 const API_TIMEOUT = 12000;
 
