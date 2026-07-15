@@ -146,12 +146,21 @@ function loadGoogleSheetsData() {
 
     window[callbackName] = (data) => {
       cleanup();
+
+      if (data && data.sucesso === false) {
+        reject(new Error(data.mensagem || 'O Apps Script retornou um erro.'));
+        return;
+      }
+
       resolve(data);
     };
 
     const params = new URLSearchParams({
+      rota: 'crescimento',
       mesBase: String(selectedA + 1),
       anoBase: String(currentYear),
+      mesAtual: String(selectedB + 1),
+      anoAtual: String(currentYear),
       abaAtual: monthNames[selectedB],
       callback: callbackName,
       _: String(Date.now())
